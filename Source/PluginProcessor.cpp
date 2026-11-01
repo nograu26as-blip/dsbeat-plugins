@@ -137,7 +137,7 @@ juce::AudioProcessorValueTreeState::ParameterLayout DSBeatMasterProcessor::creat
     {
         return std::make_unique<juce::AudioParameterFloat> (
             juce::ParameterID { id, 1 }, name,
-            juce::NormalisableRange<float> (0.0f, 2.0f, 0.01f), 1.0f,
+            juce::NormalisableRange<float> (0.0f, 1.5f, 0.01f), 1.0f,
             juce::String(), juce::AudioProcessorParameter::genericParameter,
             [] (float v, int) { return juce::String ((int) (v * 100.0f)) + " %"; },
             [] (const juce::String& t) { return t.getFloatValue() / 100.0f; });
