@@ -24,6 +24,13 @@ void StereoImager::applyWidth (juce::AudioBuffer<float>& band, float width)
     if (band.getNumChannels() < 2)
         return;
 
+    // Clamp width to safe range and apply gain compensation to prevent
+    // level blowup at extreme width settings with out-of-phase content.
+    const float w = juce::jlimit (0.0f, 1.5f, width);
+    // Compensation: reduces overall gain as width increases beyond 1.0
+    // to maintain roughly constant loudness and prevent clipping.
+    const float comp = 1.0f / (1.0f + 0.35f * juce::jmax (0.0f, w - 1.0f));
+
     const int n = band.getNumSamples();
     auto* l = band.getWritePointer (0, 0);
     auto* r = band.getWritePointer (1, 0);
@@ -31,9 +38,9 @@ void StereoImager::applyWidth (juce::AudioBuffer<float>& band, float width)
     for (int i = 0; i < n; ++i)
     {
         const float mid  = 0.5f * (l[i] + r[i]);
-        const float side = 0.5f * (l[i] - r[i]) * width;
-        l[i] = mid + side;
-        r[i] = mid - side;
+        const float side = 0.5f * (l[i] - r[i]) * w;
+        l[i] = (mid + side) * comp;
+        r[i] = (mid - side) * comp;
     }
 }
 
